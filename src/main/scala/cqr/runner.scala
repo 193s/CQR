@@ -5,13 +5,15 @@ import scala.tools.jline.console.ConsoleReader
 import cqr._
 import cqr.Dir._
 
-class CQRRunner {
+class CQRRunner(version: Int) {
+  def this() = this(3)
+
   def fromVersion(v: Int) = {
     require (v >= 1, v <= 40)
     17 + 4*v
   }
 
-  val size = fromVersion(3)
+  val size = fromVersion(version)
   val frame = new QRFrame(size)
   val reader = new ConsoleReader()
 

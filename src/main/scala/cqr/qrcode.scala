@@ -28,8 +28,10 @@ class QRCode private(size: Int) {
         case UNKNOWN => unknown
     }).mkString).mkString("\n")
 
+  def setVal(p: Pos): Unit = setVal(p.x, p.y)
   def setVal(x: Int, y: Int) = (value: ModuleType) => array(y)(x) = value
 
+  def invert(p: Pos): Unit = invert(p.x, p.y)
   def invert(x: Int, y: Int) {
     array(y)(x) = (array(y)(x) match {
       case UNKNOWN => WHITE

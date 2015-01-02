@@ -25,12 +25,12 @@ class QRFrame(size: Int) {
   }
 
   def invert() {
-    qr.invert(caret.x, caret.y)
+    qr.invert(caret.p)
     redraw()
   }
 
   def move(dir: Dir) {
-    caret.move(dir)
+    caret =>> dir
     redraw()
   }
 }
