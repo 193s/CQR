@@ -4,10 +4,11 @@ import scala.io.AnsiColor._
 import cqr._
 
 
-class QRFrame(size: Int) {
-  var caret = new ExtPos(Pos(0, 0), 0 to size, 0 to size)
+class QRFrame(version: Int) {
+  val size = QRCode.getSize(version)
+  var caret = new ExtPos(Pos(8, 0), 0 to size, 0 to size)
   val pos = Pos(0, 2)
-  val qr = QRCode(size)
+  val qr = new QRCode(version)
   val out = System.err
 
   val ESC = 27.toChar
@@ -21,7 +22,10 @@ class QRFrame(size: Int) {
     // draw qr
     qr.printAll(out)
     // draw caret
-    out.print(s"$ESC[${pos.y + caret.y};${pos.x + caret.x*2}H$GREEN_B  $RESET")
+    val cx = pos.x + caret.x * 2 + 1
+    val cy = pos.y + caret.y + 1
+    out.print(s"$ESC[${cy};${cx}H$GREEN_B  $RESET")
+    out.print(s"$ESC[${cy};${cx}H")
   }
 
   def invert() {

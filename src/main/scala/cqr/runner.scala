@@ -8,13 +8,7 @@ import cqr.Dir._
 class CQRRunner(version: Int) {
   def this() = this(3)
 
-  def fromVersion(v: Int) = {
-    require (v >= 1, v <= 40)
-    17 + 4*v
-  }
-
-  val size = fromVersion(version)
-  val frame = new QRFrame(size)
+  val frame = new QRFrame(version)
   val reader = new ConsoleReader()
 
   private def step() {
