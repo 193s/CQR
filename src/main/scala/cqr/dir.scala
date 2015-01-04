@@ -2,14 +2,14 @@ package cqr
 
 
 object Dir {
-  case object UP extends Dir
-  case object DOWN extends Dir
-  case object LEFT extends Dir
-  case object RIGHT extends Dir
+  case object UP extends Dir(Pos(0, -1))
+  case object DOWN extends Dir(Pos(0, 1))
+  case object LEFT extends Dir(Pos(-1, 0))
+  case object RIGHT extends Dir(Pos(1, 0))
 
   val values = Array(UP, DOWN, LEFT, RIGHT)
 }
-sealed abstract class Dir {
+sealed abstract class Dir(val pos: Pos) {
   import cqr.Dir._
   def unary_- = this match {
     case UP => DOWN

@@ -6,12 +6,12 @@ import cqr._
 
 class QRFrame(version: Int) {
   val size = QRCode.getSize(version)
-  var caret = new ExtPos(Pos(8, 0), 0 to size, 0 to size)
+  var caret = new ExtPos(Pos(8, 0), 0 to size - 1, 0 to size - 1)
   val pos = Pos(0, 2)
   val qr = new QRCode(version)
   val out = System.err
 
-  val ESC = 27.toChar
+  private val ESC = 27.toChar
 
   def eraseScreen() = out.print(s"$ESC[2J$ESC[0;0H")
 

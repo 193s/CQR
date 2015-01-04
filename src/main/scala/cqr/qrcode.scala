@@ -115,9 +115,11 @@ object QRCode {
   val BLOCK = "  "
 
   def getSize(v: Int) = {
-    require (v >= 1, v <= 40)
+    require (isValidVersion(v))
     17 + 4*v
   }
+
+  def isValidVersion(v: Int) = 1 <= v && v <= 40
 
   def convertStr(t: ModuleType): String = (t match {
     case UNKNOWN => AnsiColor.CYAN_B

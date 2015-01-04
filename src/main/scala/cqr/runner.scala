@@ -25,7 +25,7 @@ class CQRRunner(version: Int) {
     }
   }
 
-  def run() {
+  def run(): String = {
     frame.redraw()
 
     try while (true) step()
@@ -34,6 +34,6 @@ class CQRRunner(version: Int) {
     }
 
     frame.eraseScreen()
-    System.out.println(frame.qr.toString(black='X', white='_', unknown='?'))
+    frame.qr.toString(black='X', white='_', unknown='?')
   }
 }

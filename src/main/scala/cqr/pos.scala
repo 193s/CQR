@@ -19,13 +19,11 @@ class ExtPos(private var pos: Pos, xrange: Range, yrange: Range) {
 }
 
 case class Pos(x: Int, y: Int) {
+  def +(p: Pos) = Pos(x + p.x, y + p.y)
+  def -(p: Pos) = this + (-p)
   def +(dir: Dir) = move(dir)
-  def move(dir: Dir) = dir match {
-    case LEFT  => Pos(x - 1, y)
-    case RIGHT => Pos(x + 1, y)
-    case UP    => Pos(x, y - 1)
-    case DOWN  => Pos(x, y + 1)
-  }
+  def move(dir: Dir): Pos = this + dir.pos
+  def unary_+ = Pos(x, y)
   def unary_- = Pos(-x, -y)
 }
 
