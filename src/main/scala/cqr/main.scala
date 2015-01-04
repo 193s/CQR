@@ -7,23 +7,33 @@ import cqr.Dir._
 
 
 object Main {
+  case class Config (
+    version: Int = 3,
+    out: File = new File("-"),
+    in: File = new File("-")
+  )
+  val parser = new scopt.OptionParser[Config]("scopt") {
+    head("CQR", "1.0")
+    opt[File]('i', "in") valueName("<file>") action { (x, c) =>
+      c.copy(in = x) } text("input file")
+    opt[File]('o', "out") valueName("<file>") action { (x, c) =>
+      c.copy(out = x) } text("output file")
+    opt[Int]('v', "version") action { (x, c) =>
+      c.copy(version = x) } text("version of QR Code")
+
+    help("help") text("display this message")
+  }
+
   def errExit(s: String) {
     println(s)
     sys.exit(-1)
   }
-  def showHelp() = print (
-    "CQR v1.0\n" +
-    "Usage: scala cqr.Main [-h] [-v <version>]\n"
-  )
 
   def main(args: Array[String]) {
-    case class Config(foo: Int = -1, out: File = new File("."), xyz: Boolean = false,
-      libName: String = "", version: Int = 3, help: Boolean = false)
-
-    if (args.contains("-h") || args.contains("--help")) showHelp()
-    else {
-      if (args.contains("-o")) {
-        val outFile = new java.io.File(args(args.indexOf("-o") + 1))
+    parser.parse(args, Config()) match {
+      case Some(config) =>
+      if (config.out.toString != "-") {
+        val outFile = config.out
         try {
           val out = new PrintWriter(outFile)
           val result = new CQRRunner().run()
@@ -36,22 +46,15 @@ object Main {
             errExit(s"Unable to create '$outFile': Permission denied")
         }
       }
-      else if (args.contains("-v")) {
-        val version = try args(args.indexOf("-v") + 1).toInt catch {
-          case e: NullPointerException =>
-            showHelp()
-            sys.exit(-1)
-          case e: NumberFormatException =>
-            println("Invalid version format")
-            sys.exit(-1)
-        }
-        if (QRCode.isValidVersion(version) == false) {
-          println("Invalid version: " + version)
-          sys.exit(-1)
-        }
+      else {
+        val version = config.version
+        if (QRCode.isValidVersion(version) == false)
+          errExit("Invalid version: " + version)
         println(new CQRRunner(version).run())
       }
-      else println(new CQRRunner().run())
+
+      // bad arguments
+      case None => sys.exit(-1)
     }
   }
 }
