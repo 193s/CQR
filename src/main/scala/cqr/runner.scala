@@ -5,10 +5,12 @@ import scala.tools.jline.console.ConsoleReader
 import cqr._
 import cqr.Dir._
 
-class CQRRunner(version: Int) {
+class CQRRunner(val qr: QRCode) {
+  def this(version: Int) = this(QRCode.fromVersion(version))
   def this() = this(3)
+  def this(str: String)  = this(QRCode.fromString(str))
 
-  val frame = new QRFrame(version)
+  val frame = new QRFrame(qr)
   val reader = new ConsoleReader()
 
   private def step() {
@@ -34,6 +36,6 @@ class CQRRunner(version: Int) {
     }
 
     frame.eraseScreen()
-    frame.qr.toString(black='X', white='_', unknown='?')
+    frame.qr.toString(black = 'X', white = '_', unknown = '?')
   }
 }

@@ -6,6 +6,7 @@ import scala.io.AnsiColor
 
 import cqr.ModuleType._
 
+// Module Type
 object ModuleType {
   case object UNKNOWN extends ModuleType
   case object DARK extends ModuleType
@@ -14,80 +15,14 @@ object ModuleType {
 sealed abstract class ModuleType
 
 
-class QRCode private(size: Int) {
-  def this(version: Int = 3, init: Boolean = true) {
-    this(QRCode.getSize(version))
-    if (init) {
-      val l1 = array(0)
-      l1(0) = DARK
-      l1(1) = DARK
-      l1(2) = DARK
-      l1(3) = DARK
-      l1(4) = DARK
-      l1(5) = DARK
-      l1(6) = DARK
+class QRCode private(val size: Int, var array: QRCode.QRData) {
+  private def this(size: Int) = this(size, QRCode.newData(size))
 
-      val l2 = array(1)
-      l2(0) = DARK
-      l2(1) = LIGHT
-      l2(2) = LIGHT
-      l2(3) = LIGHT
-      l2(4) = LIGHT
-      l2(5) = LIGHT
-      l2(6) = DARK
 
-      val l3 = array(2)
-      l3(0) = DARK
-      l3(1) = LIGHT
-      l3(2) = DARK
-      l3(3) = DARK
-      l3(4) = DARK
-      l3(5) = LIGHT
-      l3(6) = DARK
+  def printAll(out: PrintStream): Unit = out.println(toAnsiString)
 
-      val l4 = array(3)
-      l4(0) = DARK
-      l4(1) = LIGHT
-      l4(2) = DARK
-      l4(3) = DARK
-      l4(4) = DARK
-      l4(5) = LIGHT
-      l4(6) = DARK
-
-      val l5 = array(4)
-      l5(0) = DARK
-      l5(1) = LIGHT
-      l5(2) = DARK
-      l5(3) = DARK
-      l5(4) = DARK
-      l5(5) = LIGHT
-      l5(6) = DARK
-
-      val l6 = array(5)
-      l6(0) = DARK
-      l6(1) = LIGHT
-      l6(2) = LIGHT
-      l6(3) = LIGHT
-      l6(4) = LIGHT
-      l6(5) = LIGHT
-      l6(6) = DARK
-
-      val l7 = array(6)
-      l7(0) = DARK
-      l7(1) = DARK
-      l7(2) = DARK
-      l7(3) = DARK
-      l7(4) = DARK
-      l7(5) = DARK
-      l7(6) = DARK
-    }
-  }
-
-  var array = Array.fill[ModuleType](size, size)(LIGHT)
-
-  def printAll(out: PrintStream): Unit = out.println (
-    array.map(arr => arr.map(QRCode.convertStr).mkString).mkString("\n")
-  )
+  def toAnsiString =
+    array.map(_.map(QRCode.convertStr).mkString).mkString("\n")
 
   def toString(black: Char = 'X', white: Char = '_', unknown: Char = '?') =
     array.map(_.map( _ match {
@@ -109,12 +44,16 @@ class QRCode private(size: Int) {
   }
 
   private def getLine(i: Int) = array(i)
+
 }
 
 object QRCode {
+  type QRData = Array[Array[ModuleType]]
+  def newData(size: Int): QRData = Array.fill[ModuleType](size, size)(LIGHT)
+
   val BLOCK = "  "
 
-  def getSize(v: Int) = {
+  def getSizeFromVersion(v: Int) = {
     require (isValidVersion(v))
     17 + 4*v
   }
@@ -123,9 +62,98 @@ object QRCode {
 
   def convertStr(t: ModuleType): String = (t match {
     case UNKNOWN => AnsiColor.CYAN_B
-    case DARK   => AnsiColor.BLACK_B
+    case DARK    => AnsiColor.BLACK_B
     case LIGHT   => AnsiColor.WHITE_B
   }) + BLOCK + AnsiColor.RESET
+
+  def char2module(c: Char) = c match {
+    case 'X' | 'x' | 'O' | 'o' | '#' | '1' => DARK
+    case '_' | '-' | ' ' | '0' => LIGHT
+    case '?' => UNKNOWN
+  }
+
+  def fromString(string: String) = {
+    val lines = string.split('\n')
+    val size = lines.length
+    require(lines forall(_.length == size))
+
+    val data = (for (line <- lines) yield line.map(char2module).toArray).
+               toArray.asInstanceOf[QRData]
+    new QRCode(size, data)
+  }
+
+  def fromVersion(version: Int, init: Boolean = true) = {
+    val size  = getSizeFromVersion(version)
+    var array = newData(size)
+    if (init) {
+      val D = DARK
+      val L = LIGHT
+
+      val l1 = array(0)
+      l1(0) = D
+      l1(1) = D
+      l1(2) = D
+      l1(3) = D
+      l1(4) = D
+      l1(5) = D
+      l1(6) = D
+
+      val l2 = array(1)
+      l2(0) = D
+      l2(1) = L
+      l2(2) = L
+      l2(3) = L
+      l2(4) = L
+      l2(5) = L
+      l2(6) = D
+
+      val l3 = array(2)
+      l3(0) = D
+      l3(1) = L
+      l3(2) = D
+      l3(3) = D
+      l3(4) = D
+      l3(5) = L
+      l3(6) = D
+
+      val l4 = array(3)
+      l4(0) = D
+      l4(1) = L
+      l4(2) = D
+      l4(3) = D
+      l4(4) = D
+      l4(5) = L
+      l4(6) = D
+
+      val l5 = array(4)
+      l5(0) = D
+      l5(1) = L
+      l5(2) = D
+      l5(3) = D
+      l5(4) = D
+      l5(5) = L
+      l5(6) = D
+
+      val l6 = array(5)
+      l6(0) = D
+      l6(1) = L
+      l6(2) = L
+      l6(3) = L
+      l6(4) = L
+      l6(5) = L
+      l6(6) = D
+
+      val l7 = array(6)
+      l7(0) = D
+      l7(1) = D
+      l7(2) = D
+      l7(3) = D
+      l7(4) = D
+      l7(5) = D
+      l7(6) = D
+    }
+    new QRCode(size, array)
+  }
 }
 
 
