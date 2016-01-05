@@ -15,14 +15,14 @@ object Main {
     in: File = null
   )
 
-  val parser = new scopt.OptionParser[Config]("run") {
+  val parser = new scopt.OptionParser[Config]("cqr") {
     head("CQR", "1.0")
     opt[File]('i', "in") valueName("<file>") action { (x, c) =>
       c.copy(in = x) } text("input file")
     opt[File]('o', "out") valueName("<file>") action { (x, c) =>
       c.copy(out = x) } text("output file")
     opt[Int]('v', "version") action { (x, c) =>
-      c.copy(version = x) } text("version of QR Code")
+      c.copy(version = x) } text("specify version (new QR with properly size will be generated)")
 
     help("help") text("display this message")
   }
